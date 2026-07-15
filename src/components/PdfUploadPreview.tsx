@@ -142,42 +142,50 @@ export default function PdfUploadPreview({ onBack, onPublishSuccess, initialExam
     return fullText;
   };
 
-  // Client-side text extraction function
-  const extractTextFromPdfClientSide = async (file: File): Promise<string> => {
-    const pdfjsLib = await loadPdfJs();
-    const arrayBuffer = await file.arrayBuffer();
-    const pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    let fullText = "";
-
-    for (let i = 1; i <= pdfDoc.numPages; i++) {
-      const page = await pdfDoc.getPage(i);
-      const textContent = await page.getTextContent();
-      const pageText = textContent.items
-        .map((item: any) => item.str)
-        .join(" ");
-      fullText += pageText + "\n";
-    }
-
-    return fullText;
-  };
+  
 
   // Handle Document (PDF, Word DOC/DOCX, RTF, Text TXT) text-extraction and backend parsing
-  const handleDocumentUpload = async (file: File) => {
-    if (!file) return;
-    setError("");
-    setSuccess("");
-    setLoading(true);
-    
-    const isPdf = file.name.toLowerCase().endsWith(".pdf") || file.type === "application/pdf";
-    const isDocx = file.name.toLowerCase().endsWith(".docx") || file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-    const isDoc = file.name.toLowerCase().endsWith(".doc") || file.type === "application/msword";
-    const isRtf = file.name.toLowerCase().endsWith(".rtf") || file.type === "application/rtf" || file.type === "text/rtf";
-    const isTxt = file.name.toLowerCase().endsWith(".txt") || file.type === "text/plain";
+const handleDocumentUpload = async (file: File) => {
+  if (!file) return;
+  setError("");
+  setSuccess("");
+  setLoading(true);
 
-    if (!isPdf && !isDocx && !isDoc && !isRtf && !isTxt) {
-      setError("Unsupported file format. Please upload a PDF (.pdf), Microsoft Word (.docx/.doc), RTF (.rtf), or Text (.txt) file.");
-      setLoading(false);
-      return;
+  const isPdf = file.name.toLowerCase().endsWith(".pdf") || file.type === "application/pdf";
+  
+  if (!isPdf) {
+    setError("Only PDF files supported right now");
+    setLoading(false);
+    return;
+  }
+
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("/api/ocr", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "OCR failed");
+
+    console.log("Extracted text:", data.text);
+    setSuccess("PDF read successfully! Generating exam...");
+    
+    // TODO: Send data.text to your exam generator
+    // await generateExamFromText(data.text);
+    
+  } catch (err: any) {
+    console.error(err);
+    setError(err.message || "Failed to process PDF");
+  } finally {
+    setLoading(false);
+  }
+};  
+  
+    
     }
 
     const fileTypeName = isPdf ? "PDF" : isRtf ? "RTF document" : isTxt ? "Text document" : "Word document";
