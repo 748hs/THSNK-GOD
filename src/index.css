@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  
+  --color-geom-blue: #1E3A8A;
+  --color-geom-gold: #D4AF37;
+  --color-geom-blue-hover: #1D4ED8;
+  --color-geom-blue-dark: #172554;
+  --color-geom-blue-light: #EFF6FF;
+  --color-geom-gold-light: #FEF9C3;
+  --color-geom-gold-dark: #A16207;
+
+  --animate-fadeIn: fadeIn 0.4s ease-out forwards;
+  --animate-slideDown: slideDown 0.3s ease-out forwards;
+  --animate-shake: shake 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+/* Custom font sizes */
+.text-3xs {
+  font-size: 0.65rem;
+}
+.text-4xs {
+  font-size: 0.55rem;
+}
+
+/* Base resets & styles */
+body {
+  font-family: var(--font-sans);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}

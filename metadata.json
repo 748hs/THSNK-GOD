@@ -1,0 +1,6 @@
+{
+  "name": "Maranatha",
+  "description": "A modern, secure, and professional online examination platform.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

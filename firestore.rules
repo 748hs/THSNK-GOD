@@ -1,0 +1,71 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global safety net: default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+        getUserData().role == 'admin';
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if isSignedIn() && (isOwner(userId) || isAdmin());
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && (
+        isAdmin() || 
+        (isOwner(userId) && 
+         // Force the user to keep their original role and blocked status
+         request.resource.data.role == resource.data.role && 
+         request.resource.data.blocked == resource.data.blocked
+        )
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Examinations Collection
+    match /examinations/{examId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Attempts Collection
+    match /attempts/{attemptId} {
+      allow read: if isSignedIn() && (
+        isAdmin() || 
+        (resource != null && resource.data.studentId == request.auth.uid)
+      );
+      allow create: if isSignedIn() && (
+        isAdmin() || 
+        (request.resource.data.studentId == request.auth.uid)
+      );
+      allow update: if isSignedIn() && (
+        isAdmin() || 
+        (resource != null && resource.data.studentId == request.auth.uid && request.resource.data.studentId == request.auth.uid)
+      );
+      allow delete: if isAdmin();
+    }
+  }
+}
