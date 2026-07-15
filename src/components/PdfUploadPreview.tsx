@@ -386,7 +386,7 @@ const handleDocumentUpload = async (file: File) => {
       setLoadingMessage("");
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
-  };
+  
 
   // Drag & drop handlers
   const handleDragOver = (e: React.DragEvent) => {
