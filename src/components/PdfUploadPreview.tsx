@@ -384,11 +384,11 @@ const handleDocumentUpload = async (file: File) => {
     } finally {
       setLoading(false);
       setLoadingMessage("");
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
+      
+    
   
 
-  // Drag & drop handlers
+  
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
